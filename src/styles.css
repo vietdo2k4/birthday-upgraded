@@ -1,0 +1,663 @@
+/* =========================================================================
+   0) Tailwind
+   ========================================================================= */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================================================
+   1) Biến & utilities chung
+   ========================================================================= */
+:root {
+    --glass: rgba(255, 255, 255, .65);
+}
+
+/* Card “glass” tái sử dụng */
+.glass {
+    background: var(--glass);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, .55);
+}
+
+/* Ẩn scrollbar (Chrome/Firefox) */
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none
+}
+
+/* =========================================================================
+   2) Animations dùng chung (không trùng tên)
+   ========================================================================= */
+@keyframes glow {
+
+    0%,
+    100% {
+        text-shadow: 0 0 0 rgba(128, 90, 213, 0)
+    }
+
+    50% {
+        text-shadow: 0 8px 24px rgba(128, 90, 213, .35)
+    }
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0
+    }
+
+    100% {
+        background-position: 200% 0
+    }
+}
+
+@keyframes wave {
+
+    0%,
+    100% {
+        transform: translateY(0)
+    }
+
+    50% {
+        transform: translateY(-6px)
+    }
+}
+
+@keyframes floaty {
+
+    0%,
+    100% {
+        transform: translateY(0)
+    }
+
+    50% {
+        transform: translateY(-8px)
+    }
+}
+
+@keyframes twinkle {
+    0% {
+        transform: translateY(6px) scale(.2);
+        opacity: 0
+    }
+
+    20% {
+        transform: translateY(0) scale(1);
+        opacity: 1
+    }
+
+    80% {
+        opacity: .7
+    }
+
+    100% {
+        transform: translateY(-10px) scale(.2);
+        opacity: 0
+    }
+}
+
+/* =========================================================================
+   3) HERO – tiêu đề & chữ
+   ========================================================================= */
+.title-glow {
+    animation: glow 3s ease-in-out infinite
+}
+
+.title-fancy {
+    -webkit-text-stroke: 10px transparent;
+    text-shadow: 0 8px 30px rgba(124, 58, 237, .35), 0 2px 0 rgba(0, 0, 0, .04);
+    background-image: linear-gradient(90deg, #7c3aed, #a855f7, #3b82f6);
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    background-size: 200% 100%;
+    animation: shimmer 4s linear infinite, wave 5s ease-in-out infinite;
+}
+
+.name-fancy {
+    background-image: linear-gradient(90deg, #f472b6, #7c3aed, #60a5fa);
+    background-size: 200% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    animation: shimmer 5s linear infinite;
+}
+
+/* gạch chân cong tuỳ chọn */
+.hr-curve {
+    position: relative
+}
+
+.hr-curve::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: -10px;
+    width: 220px;
+    height: 10px;
+    border-radius: 999px;
+    background: radial-gradient(ellipse at center, rgba(139, 92, 246, .35), rgba(139, 92, 246, 0));
+    filter: blur(4px);
+}
+
+/* caret nhấp nháy (nếu dùng) */
+@keyframes blink {
+    50% {
+        opacity: 0
+    }
+}
+
+.caret {
+    border-right: .12em solid rgba(124, 58, 237, .9);
+    animation: blink 1s step-end infinite
+}
+
+/* =========================================================================
+   4) HERO – khung ảnh dễ thương (cute-frame)
+   ========================================================================= */
+.cute-frame {
+    position: relative;
+    border-radius: 28px;
+    padding: 10px;
+    background:
+        radial-gradient(circle at 10px 10px, #fbe7ff 12px, transparent 13px) 0 0/28px 28px,
+        radial-gradient(circle at 10px 10px, #e9f2ff 12px, transparent 13px) 14px 14px/28px 28px,
+        linear-gradient(135deg, #fbcfe8, #e9d5ff, #bfdbfe);
+    box-shadow: 0 18px 50px rgba(124, 58, 237, .25);
+    transition: transform .35s ease, box-shadow .35s ease;
+    overflow: visible;
+}
+
+.cute-frame:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 26px 70px rgba(124, 58, 237, .35)
+}
+
+.cute-frame::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: 32px;
+    background: radial-gradient(120% 120% at 50% 0, rgba(167, 139, 250, .35), transparent 60%);
+    filter: blur(12px);
+    opacity: .28;
+    transition: .35s;
+    pointer-events: none;
+}
+
+.cute-frame:hover::after {
+    opacity: .5
+}
+
+.floaty-slow {
+    animation: floaty 6s ease-in-out infinite
+}
+
+.cute-inner {
+    position: relative;
+    border-radius: 22px;
+    overflow: hidden;
+    background: #fff
+}
+
+.cute-inner img {
+    transition: transform .6s ease
+}
+
+.cute-frame:hover .cute-inner img {
+    transform: scale(1.05)
+}
+
+.tape {
+    position: absolute;
+    width: 86px;
+    height: 22px;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-4deg);
+    background: linear-gradient(90deg, #fde68a, #fbcfe8);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, .12);
+    border-radius: 4px;
+    opacity: .9;
+}
+
+.ribbon {
+    position: absolute;
+    font-size: 26px;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .25))
+}
+
+.ribbon.lt {
+    left: -10px;
+    top: -12px;
+    transform: rotate(-12deg)
+}
+
+.ribbon.rt {
+    right: -10px;
+    top: -10px;
+    transform: rotate(10deg)
+}
+
+@keyframes floatHeart {
+
+    0%,
+    100% {
+        transform: translateY(0)
+    }
+
+    50% {
+        transform: translateY(-10px)
+    }
+}
+
+.heart {
+    position: absolute;
+    font-size: 22px;
+    animation: floatHeart 4.5s ease-in-out infinite
+}
+
+.heart.h1 {
+    left: 8px;
+    bottom: 10px;
+    animation-delay: .2s
+}
+
+.heart.h2 {
+    right: 10px;
+    bottom: 18px;
+    animation-delay: .9s
+}
+
+/* tia lấp lánh */
+.spark {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: radial-gradient(#fff, rgba(255, 255, 255, .2));
+    box-shadow: 0 0 8px #fff, 0 0 16px rgba(124, 58, 237, .55);
+    animation: twinkle 2.2s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 20;
+    filter: saturate(120%);
+}
+
+.spark--sm {
+    width: 4px;
+    height: 4px
+}
+
+.spark--lg {
+    width: 8px;
+    height: 8px
+}
+
+/* =========================================================================
+   5) BackgroundLite – canvas aura + emoji bay (nhẹ, mượt)
+   ========================================================================= */
+.decor-lite {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden
+}
+
+.decor-canvas {
+    position: absolute;
+    inset: 0;
+    opacity: .65
+}
+
+/* Emoji bay (CSS variables tách trục) */
+.d-emoji {
+    position: absolute;
+    left: 0;
+    bottom: -18vh;
+    opacity: 0;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, .15));
+    will-change: transform, opacity;
+    --tx: 0px;
+    --ty: 0px;
+    --sc: 1;
+    transform: translate(var(--tx), var(--ty)) scale(var(--sc));
+    animation: flyY var(--dur, 6s) cubic-bezier(.22, .61, .36, 1) infinite var(--delay, 0s),
+        swayX var(--sway, 7s) ease-in-out infinite;
+}
+
+.d-emoji.sm {
+    font-size: 20px
+}
+
+.d-emoji.md {
+    font-size: 26px
+}
+
+.d-emoji.lg {
+    font-size: 32px
+}
+
+@keyframes flyY {
+    0% {
+        --ty: 0vh;
+        --sc: .9;
+        opacity: 0
+    }
+
+    12% {
+        --sc: 1;
+        opacity: 1
+    }
+
+    88% {
+        --sc: 1;
+        opacity: 1
+    }
+
+    100% {
+        --ty: -120vh;
+        --sc: 1.05;
+        opacity: 0
+    }
+}
+
+@keyframes swayX {
+    0% {
+        --tx: calc(-1 * var(--amp, 16px))
+    }
+
+    50% {
+        --tx: var(--amp, 16px)
+    }
+
+    100% {
+        --tx: calc(-1 * var(--amp, 16px))
+    }
+}
+
+/* =========================================================================
+   6) Album Carousel – kéo chuột, dây treo, polaroid
+   ========================================================================= */
+/* vùng kéo */
+.carousel {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 80%;
+    gap: 16px;
+    padding: 8px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    cursor: grab;
+}
+
+.carousel.dragging {
+    cursor: grabbing
+}
+
+.carousel>* {
+    scroll-snap-align: center
+}
+
+@media (min-width:768px) {
+    .carousel {
+        grid-auto-columns: 33%
+    }
+}
+
+/* dây treo phía trên */
+.clothesline {
+    position: absolute;
+    top: -6px;
+    left: 0;
+    right: 0;
+    height: 24px;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.clothesline path {
+    stroke: rgba(0, 0, 0, .22);
+    stroke-width: 1.2;
+    fill: none;
+    filter: drop-shadow(0 1px 0 rgba(255, 255, 255, .45));
+    animation: lineWiggle 5s ease-in-out infinite;
+}
+
+/* nhẹ nhàng */
+@keyframes lineWiggle {
+
+    0%,
+    100% {
+        d: path("M0,12 C22,9 78,15 100,12")
+    }
+
+    50% {
+        d: path("M0,12 C22,8 78,16 100,12")
+    }
+}
+
+/* khung polaroid */
+.polaroid {
+    position: relative;
+    background: #fff;
+    border: 1px solid rgba(124, 58, 237, .15);
+    border-radius: 18px;
+    padding: .5rem .75rem .75rem;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, .12);
+    transition: transform .35s ease, box-shadow .35s ease, filter .35s ease;
+}
+
+.polaroid:hover {
+    box-shadow: 0 24px 70px rgba(139, 92, 246, .28);
+    filter: saturate(1.05);
+    animation: sway 2.8s ease-in-out infinite;
+}
+
+@keyframes sway {
+
+    0%,
+    100% {
+        transform: translateY(-2px)
+    }
+
+    50% {
+        transform: translateY(-4px) rotate(.6deg)
+    }
+}
+
+.polaroid-body {
+    padding-top: .25rem
+}
+
+.polaroid img {
+    width: 100%;
+    height: 16rem;
+    object-fit: cover;
+    border-radius: 12px
+}
+
+/* miếng pin */
+.pin {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-3deg);
+    width: 22px;
+    height: 14px;
+    border-radius: 3px 3px 0 0;
+    background: linear-gradient(180deg, #f59e0b, #d97706);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, .15);
+    animation: pinWiggle 3.6s ease-in-out infinite;
+}
+
+@keyframes pinWiggle {
+
+    0%,
+    100% {
+        transform: translateX(-50%) rotate(-3deg)
+    }
+
+    50% {
+        transform: translateX(-50%) rotate(-5deg)
+    }
+}
+
+/* bóng dưới */
+.shadow-under {
+    position: absolute;
+    left: 18%;
+    right: 18%;
+    bottom: -6px;
+    height: 6px;
+    background: rgba(0, 0, 0, .14);
+    filter: blur(8px);
+    border-radius: 999px;
+    pointer-events: none;
+}
+
+/* =========================================================================
+   7) Lightbox – ảnh phóng to + dây treo riêng
+   ========================================================================= */
+/* Vùng bọc mỗi ảnh để đặt dây phía sau */
+.card-wrap {
+    position: relative;
+    padding-top: 18px;
+    /* chừa chỗ cho dây */
+    width: min(92vw, 420px);
+    /* theo layout hiện tại */
+}
+
+/* Dây local luôn căn giữa card, nằm sau tấm ảnh */
+.local-line {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 140%;
+    height: 24px;
+    /* đủ để thấy độ võng */
+    z-index: 0;
+    pointer-events: none;
+}
+
+.local-line path {
+    stroke: rgba(0, 0, 0, .20);
+    stroke-width: 1.2;
+    fill: none;
+    filter: drop-shadow(0 1px 0 rgba(255, 255, 255, .45));
+    animation: lineWiggle 6s ease-in-out infinite;
+}
+
+/* rung rất nhẹ, tiết kiệm tài nguyên */
+@keyframes lineWiggle {
+
+    0%,
+    100% {
+        d: path("M0,10 C25,7 75,13 100,10")
+    }
+
+    50% {
+        d: path("M0,10 C25,6 75,14 100,10")
+    }
+}
+
+/* đảm bảo ảnh luôn nằm TRÊN dây */
+.polaroid {
+    position: relative;
+    z-index: 1;
+}
+
+/* --- Scrollbar pastel nhẹ nhàng --- */
+/* --- Scrollbar kiểu glass trong suốt --- */
+.carousel::-webkit-scrollbar {
+    height: 12px;
+}
+
+.carousel::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 999px;
+    backdrop-filter: blur(10px);
+}
+
+.carousel::-webkit-scrollbar-thumb {
+    background: rgba(139, 92, 246, 0.5);
+    border-radius: 999px;
+    box-shadow: 0 0 12px rgba(139, 92, 246, 0.4);
+    transition: all 0.3s ease;
+}
+
+.carousel::-webkit-scrollbar-thumb:hover {
+    background: rgba(139, 92, 246, 0.8);
+    box-shadow: 0 0 16px rgba(124, 58, 237, 0.6);
+}
+
+
+
+/* style.css */
+.font-cardTitle {
+    font-family: "Pacifico", cursive;
+}
+
+.font-cardBody {
+    font-family: "Inter", system-ui, sans-serif;
+}
+
+.birthday-frame {
+    position: relative;
+    border-radius: 32px;
+    padding: 2.5rem;
+    background: linear-gradient(145deg, #fff9fc, #f8f5ff);
+    border: 3px solid;
+    border-image: linear-gradient(90deg, #f9a8d4, #c084fc, #93c5fd) 1;
+    box-shadow: 0 20px 50px rgba(124, 58, 237, 0.25);
+    overflow: hidden;
+}
+
+.birthday-frame::before {
+    content: "🎉🎂🎈";
+    position: absolute;
+    font-size: 4rem;
+    opacity: 0.1;
+    top: 10%;
+    left: 10%;
+    transform: rotate(-15deg);
+    pointer-events: none;
+}
+
+/* Font riêng cho thiệp */
+.font-cardTitle {
+    font-family: "Great Vibes", cursive;
+}
+
+.font-cardBody {
+    font-family: "Quicksand", system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+}
+
+/* Banner pastel sau tiêu đề để tăng tương phản */
+.card-banner {
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-3deg);
+    width: 190px;
+    height: 30px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #fde68a, #fbcfe8, #c7d2fe);
+    box-shadow: 0 10px 20px rgba(124, 58, 237, .18);
+    opacity: .92;
+    filter: saturate(1.05);
+}
+
+body {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}

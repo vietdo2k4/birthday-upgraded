@@ -1,0 +1,34 @@
+# 📦 Dependencies
+node_modules/
+
+# 🏗️ Build output
+dist/
+build/
+
+# 📁 Environment variables
+.env
+.env.local
+.env.*.local
+
+# 🧪 Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ⚙️ Editor / IDE config
+.vscode/
+.idea/
+
+# 🐙 OS generated files
+.DS_Store
+Thumbs.db
+
+# 📦 Package lock files (tùy chọn - nếu bạn không muốn track)
+# package-lock.json
+# yarn.lock
+
+# 🔥 Misc
+*.log
+*.cache
+*.tmp
