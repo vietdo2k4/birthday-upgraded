@@ -2,27 +2,31 @@ import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import tracks from "../data/tracks";
 
-const IconPrev = () => (<svg width="26" height="26" viewBox="0 0 24 24"><path fill="currentColor" d="M6 6h2v12H6zM20 6v12L10 12z"/></svg>);
-const IconNext = () => (<svg width="26" height="26" viewBox="0 0 24 24"><path fill="currentColor" d="M16 6h2v12h-2zM4 6v12l10-6z"/></svg>);
-const IconPlay = () => (<svg width="30" height="30" viewBox="0 0 24 24"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>);
-const IconPause = () => (<svg width="30" height="30" viewBox="0 0 24 24"><path fill="currentColor" d="M6 5h4v14H6zm8 0h4v14h-4z"/></svg>);
+const IconPrev = () => (<svg width="26" height="26" viewBox="0 0 24 24"><path fill="currentColor" d="M6 6h2v12H6zM20 6v12L10 12z" /></svg>);
+const IconNext = () => (<svg width="26" height="26" viewBox="0 0 24 24"><path fill="currentColor" d="M16 6h2v12h-2zM4 6v12l10-6z" /></svg>);
+const IconPlay = () => (<svg width="30" height="30" viewBox="0 0 24 24"><path fill="currentColor" d="M8 5v14l11-7z" /></svg>);
+const IconPause = () => (<svg width="30" height="30" viewBox="0 0 24 24"><path fill="currentColor" d="M6 5h4v14H6zm8 0h4v14h-4z" /></svg>);
 
 export default function AudioPlayer() {
   const [i, setI] = useState(() => Math.floor(Math.random() * tracks.length));
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const a = useRef(null);
-  const wasPlaying = useRef(false);
   const fadeRAF = useRef(null);
+  const shouldResumeRef = useRef(false);
+
   const t = tracks[i];
 
-  // helper fade volume
-  const fadeTo = (target = 1, ms = 1200) => {
-    const el = a.current;
-    if (!el) return;
+  const clearFade = () => {
     if (fadeRAF.current) cancelAnimationFrame(fadeRAF.current);
+    fadeRAF.current = null;
+  };
+
+  const fadeTo = (target = 1, ms = 1200) => {
+    const el = a.current; if (!el) return;
+    clearFade();
     const start = performance.now();
-    const v0 = el.volume;
+    const v0 = el.volume ?? 1;
     const step = (now) => {
       const p = Math.min(1, (now - start) / ms);
       el.volume = v0 + (target - v0) * p;
@@ -32,70 +36,102 @@ export default function AudioPlayer() {
     fadeRAF.current = requestAnimationFrame(step);
   };
 
+  // cố gắng play, nếu bị chặn thì tự retry khi có tương tác tiếp theo
+  const tryPlayWithFallback = () => {
+    const el = a.current; if (!el) return;
+    el.muted = false;
+    el.volume = 0;
+    return el.play().then(() => {
+      setPlaying(true);
+      fadeTo(1, 1000);
+      // lưu “đã từng auto play ok”
+      localStorage.setItem("music_autoplay_ok", "1");
+    }).catch(() => {
+      setPlaying(false);
+      // gắn one-time resume sau tương tác
+      const resume = () => {
+        window.removeEventListener("pointerdown", resume);
+        window.removeEventListener("keydown", resume);
+        window.removeEventListener("scroll", resume);
+        // thử lại
+        tryPlayWithFallback();
+      };
+      window.addEventListener("pointerdown", resume, { once: true });
+      window.addEventListener("keydown", resume, { once: true });
+      window.addEventListener("scroll", resume, { once: true });
+    });
+  };
+
   // đổi bài
   useEffect(() => {
     const el = a.current; if (!el) return;
-    wasPlaying.current = playing;
+    clearFade();
     setProgress(0);
+
+    // nhớ trạng thái trước khi đổi
+    shouldResumeRef.current = playing;
+
+    // nạp bài mới
     el.pause();
     el.src = t.src;
+    el.currentTime = 0;
 
-    const onLoaded = () => {
-      el.currentTime = 0;
-      if (wasPlaying.current) {
-        el.volume = 0;
-        el.play()
-          .then(() => { setPlaying(true); fadeTo(1, 1200); })
-          .catch(() => setPlaying(false));
+    const onCanPlay = () => {
+      // nếu trước đó đang phát → auto play tiếp bài mới
+      if (shouldResumeRef.current) {
+        tryPlayWithFallback();
+      } else {
+        setPlaying(false);
       }
     };
-    el.addEventListener("loadedmetadata", onLoaded, { once: true });
-    el.load();
-    return () => el.removeEventListener("loadedmetadata", onLoaded);
-  }, [i]); // eslint-disable-line
 
-  // tự phát khi vào web + fallback
+    el.addEventListener("canplay", onCanPlay, { once: true });
+    el.load();
+
+    return () => {
+      el.removeEventListener("canplay", onCanPlay);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [i]);
+
+  // tự phát khi vào web (nếu policy cho phép)
   useEffect(() => {
     const el = a.current; if (!el) return;
-    const okBefore = localStorage.getItem("music_autoplay_ok") === "1";
+    // iOS inline
+    el.setAttribute("playsinline", "");
+    const autoplayKnownOk = localStorage.getItem("music_autoplay_ok") === "1";
+    // cứ thử (nếu bị chặn sẽ gắn fallback ở trên)
+    tryPlayWithFallback();
+    // nếu trước đó chưa ok, lần tương tác đầu sẽ resume
+    if (!autoplayKnownOk) {
+      const first = () => {
+        window.removeEventListener("pointerdown", first);
+        window.removeEventListener("keydown", first);
+        window.removeEventListener("scroll", first);
+        if (el.paused) tryPlayWithFallback();
+      };
+      window.addEventListener("pointerdown", first, { once: true });
+      window.addEventListener("keydown", first, { once: true });
+      window.addEventListener("scroll", first, { once: true });
+    }
 
-    const tryPlay = () => {
-      el.volume = 0;
-      el.play()
-        .then(() => {
-          setPlaying(true);
-          localStorage.setItem("music_autoplay_ok", "1");
-          fadeTo(1, 1200);
-        })
-        .catch(() => { /* chờ tương tác */ });
-    };
-
-    if (okBefore) tryPlay();
-    else tryPlay();
-
-    const resume = () => { if (el.paused) tryPlay(); };
-    window.addEventListener("pointerdown", resume, { once: true });
-    window.addEventListener("keydown", resume, { once: true });
-    window.addEventListener("scroll", resume, { once: true });
-    return () => {
-      window.removeEventListener("pointerdown", resume);
-      window.removeEventListener("keydown", resume);
-      window.removeEventListener("scroll", resume);
-    };
-  }, []); // eslint-disable-line
+    return () => clearFade();
+  }, []);
 
   const togglePlay = async () => {
     const el = a.current; if (!el) return;
     if (el.paused) {
+      el.volume = 0;
       try {
-        el.volume = 0;
         await el.play();
         setPlaying(true);
-        fadeTo(1, 1200); // fade-in
-      } catch { setPlaying(false); }
+        fadeTo(1, 1000);
+      } catch {
+        setPlaying(false);
+      }
     } else {
-      fadeTo(0, 300);   // fade-out nhanh
-      setTimeout(() => { el.pause(); setPlaying(false); }, 320);
+      fadeTo(0, 250);
+      setTimeout(() => { el.pause(); setPlaying(false); }, 260);
     }
   };
 
@@ -143,7 +179,13 @@ export default function AudioPlayer() {
             onClick={next}><IconNext /></motion.button>
         </div>
 
-        <audio ref={a} preload="metadata" onTimeUpdate={onTime} onEnded={next} />
+        <audio
+          ref={a}
+          preload="metadata"
+          onTimeUpdate={onTime}
+          onEnded={next}
+          playsInline
+        />
       </div>
     </div>
   );
